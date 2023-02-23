@@ -27,12 +27,12 @@ class Veiculos {
   comprar(possuiLicensa){
     if (this.precisaLicensa === true) {
       if (possuiLicensa === true) {
-        return 'comprou';
+        return 'pode comprar';
       } else {
         return 'consiga uma licensa santes de comprar';
       }
     } else {
-      return 'whatever';
+      return 'pode comprar';
     }
   }
 }
@@ -61,19 +61,15 @@ const motorG14 = {
 }
 
 class Carro extends Veiculos {
-  constructor(porte, preco, precisaLicensa, motor, potencia, cambio, portas, cor){
+  constructor(porte, preco, precisaLicensa, motor, cambio, portas, cor){
     super('médio', preco, true);
     this.motor = motor // Elétrico, gasolina, álcool ou diesel
-    this.potencia = potencia // number em cavalos
     this.cambio = cambio // automático ou manual
     this.portas = portas // number
     this.cor = cor // cores
   }
   getMotor(){
     return this.motor
-  }
-  getPotencia(){
-    return this.potencia + ' CV'
   }
   getCambio(){
     return this.cambio
