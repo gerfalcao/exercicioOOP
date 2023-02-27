@@ -24,50 +24,38 @@ abstract class Veiculos {
     return $this->precisaLicenca;
   }
 
-  public function segurar (){
-    if($this->getPorte() === 'pequeno'){
-      return 'segurou'
-    }
-    if($this->getPorte === 'médio'){
-      return 'veículo de porte médio, não segura'
-    }
-    if($this->getPorte === 'grande'){
-      return 'muito grande para segurar'
-    }
-  }
-
-  public function comprar(possuiLicenca) {
-    if($this->getPrecisaLicenca === 'true') {
-      if (possuiLicenca === 'true') {
-        return 'Pode comprar'
+  public function comprar($possuiLicenca) {
+    if($this->getPrecisaLicenca() === 'true') {
+      if ($possuiLicenca === 'true') {
+        return 'Pode comprar';
       }
-      if (possuiLicenca === 'false') {
-        return 'Arrume uma licenca antes de comprar'
+      if ($possuiLicenca === 'false') {
+        return 'Arrume uma licenca antes de comprar';
       }
     } else {
-      return 'Pode comprar'
+      return 'Pode comprar';
     }
   }
 }
 
-class $material {
+class Material {
   public string $material;
   public int $resistencia;
 
-  public function __construct (string $material, int $resistencia;){
+  public function __construct (string $material, int $resistencia){
     $this->material = $material;
     $this->resistencia = $resistencia;
   }
 }
 
 $aluminio = new $material('Alumínio', 4);
-$ferro = new $material('Ferro', 8)
+$ferro = new $material('Ferro', 8);
 
-class $motor {
-  public string $nome;
-  public string $combustivel;
-  public int $potencia;
-  public string $material;
+class Motor {
+  private string $nome;
+  private string $combustivel;
+  private int $potencia;
+  private string $material;
 
   public function __construct (string $nome, string $combustivel, int $potencia, string $material) {
     $this->nome = $nome;
