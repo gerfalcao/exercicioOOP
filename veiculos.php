@@ -64,8 +64,8 @@ class Material {
   }
 }
 
-$aluminio = new $material('Alumínio', 4);
-$ferro = new $material('Ferro', 8);
+$aluminio = new Material('Alumínio', 4);
+$ferro = new Material('Ferro', 8);
 
 
 // Criando classe Motor e dois tipos de motores
@@ -75,11 +75,12 @@ class Motor {
   private string $combustivel;
   private int $consumo;
   private int $potencia;
-  private string $material;
+  private object $material;
 
-  public function __construct (string $nome, string $combustivel, int $consumo, int $potencia, string $material) {
+  public function __construct (string $nome, string $combustivel, int $consumo, int $potencia, object $material) {
     $this->nome = $nome;
     $this->combustivel = $combustivel;
+    $this->consumo = $consumo;
     $this->potencia = $potencia;
     $this->material = $material;
   }
@@ -92,6 +93,10 @@ class Motor {
     return $this->combustivel;
   }
 
+  public function getConsumo(){
+    return $this->consumo;
+  }
+
   public function getPotencia(){
     return $this->potencia;
   }
@@ -101,14 +106,40 @@ class Motor {
   }
 }
 
-$R8 = new $motor('R8', 'Gasolina', 8, 80, $ferro);
-$G14 = new $motor('G14', 'Híbrido', 12, 55, $ferro);
+$motorR8 = new Motor('R8', 'Gasolina', 8, 80, $ferro);
+$motorG14 = new Motor('G14', 'Híbrido', 12, 55, $ferro);
 
+// Criando classe do tanque
+class Tanque {
+  private float $tanque;
+  private float $capacidadeTotal;
+  private float $disponivel;
+
+  public function __construct(float $tanque)
+  {
+    $this->capacidadeTotal = $tanque;
+    $this->disponivel = $tanque;
+  }
+
+  public function getCapacidadeTotal(){
+    return $this->capacidadeTotal;
+  }
+
+  public function getDisponivel(){
+    return $this->disponivel;
+  }
+
+  public function setDisponvivel(float $novoValor): void
+  {
+   $this->disponivel = $novoValor;
+  }
+
+}
 
 // Criando classe Carro
 
 class Carro extends Veiculos {
-  private string $motor; 
+  private object $motor; 
   private string $cambio; 
   private object $tanque;
   private int $portas; 
@@ -117,11 +148,12 @@ class Carro extends Veiculos {
   private bool $temCarroceria;
   private int $lugares;
 
-  public function __construct (float $preco, string $motor, object $tanque, string $cambio, int $portas, string $cor, bool $usoProfissional, bool $temCarroceria, int $lugares){
-    parent :: __construct($nome, 'Médio', $preco , true);
+  public function __construct (string $nome, float $preco, object $motor, float $tanque, string $cambio, int $portas, string $cor, bool $usoProfissional, bool $temCarroceria, int $lugares){
+    parent::__construct($nome, 'Médio', $preco , true);
 
     $this->motor = $motor;
     $this->cambio = $cambio;
+    $this->tanque = new Tanque($tanque);
     // $this->tanque = {
     //   capacidadeTotal: $tanque;
     //   disponivel: $tanque;
@@ -173,11 +205,11 @@ class Carro extends Veiculos {
   // Função abastecer com variável do combustível, para completar tanque após consumo feito na função acelerar 
   public function abastecer(string $combustivel){
     if ($this->motor->combustivel === 'Híbrido' && $combustivel === 'Gasolina' || $combustivel === 'Alcool' ){
-      $this->tanque->disponivel = $this->tanque->capacidadeTotal;
+      $this->tanque->setDisponivel($this->tanque->capacidadeTotal);
       return 'abasteceu'; 
     }
     if ($this->motor->combustivel === $combustivel){
-      $this->tanque->disponivel = $this->tanque->capacidadeTotal;
+      $this->tanque->setDisponivel($this->tanque->capacidadeTotal);
       return 'abasteceu';
     } else {
       return 'combustível incompatível';
@@ -186,12 +218,12 @@ class Carro extends Veiculos {
   
   // Função acelerar com variável de quilômetros, retornando o consumo de combustível para percorrer os quilômetros, e atualizando a quantidade de combustível no tanque após a aceleração;
   public function acelerar(int $km){
-    $consumido = ($km / $this->motor->getConsumo()).toFixed(1);
-    if ($this->tanque->disponivel - $consumido <= 0){
+    $consumido = round(($km / $this->motor->getConsumo()), 2);
+    if ($this->tanque->getDisponivel() - $consumido <= 0){
       return 'Não pode acelerar tanto, não tem combustível para isso';
     } else {
-    $this->tanque->disponivel = $this->tanque->disponivel - $consumido;
-    return `O carro percorre ${$km} quilômetros e foram consumidos ${$consumido} litros.`;
+    $this->tanque->setDisponivel($this->tanque->disponivel - $consumido);
+    return `O carro percorre $km quilômetros e foram consumidos $consumido litros.`;
     }
   }
 
@@ -223,37 +255,37 @@ class Carro extends Veiculos {
   }
 }
 
-$kombi98 = new Carro('Kombi 98', '', 50000.00, '', motorR8, 'Manual', 40, 3, 'Branca', true, true, 9);
+$kombi98 = new Carro('Kombi 98', 50000.00, $motorR8, 'Manual', 40, 3, 'Branca', true, true, 9);
 
 // Verificar tanque
-$kombi98->tanque;
+echo $kombi98->$tanque->getDisponivel();
 
 // Acelerar 50 km
 $kombi98->acelerar(50);
 
 // Verificar tanque
-$kombi98->tanque;
+$kombi98->$tanque;
 
 // Abastecer
-$kombi98->abastecer('Gasolina');
+$kombi98->$abastecer('Gasolina');
 
 // Verificar
-$kombi98->tanque;
+$kombi98->$tanque;
 
-$civic2015 = new Carro('Civic 2015', '', 70000.00, '', motorG14, 'Automático', 50, 4, 'Prata', false, false, 5);
+$civic2015 = new Carro('Civic 2015', 70000.00, $motorG14, 'Automático', 50, 4, 'Prata', false, false, 5);
 
-public function comparaCarros($carro1, $carro2){
-  if (carro1.getDesempenho() > carro2.getDesempenho()){
-    return `O veículo ${carro1.getNome()} é mais veloz que ${carro2.getNome()}`;
+function comparaCarros($carro1, $carro2){
+  if ($carro1->getDesempenho() > $carro2->getDesempenho()){
+    return `O veículo $carro1.getNome() é mais veloz que $carro2.getNome()`;
   }
-  if (carro1.getDesempenho() === carro2.getDesempenho()){
+  if ($carro1->getDesempenho() === $carro2->getDesempenho()){
     return `Os dois veículos são igualmente velozes`;
   }
-  if (carro1.getDesempenho() < carro2.getDesempenho()){
-    return `O veículo ${carro2.getNome()} é mais veloz que ${carro1.getNome()}`;
+  if ($carro1->getDesempenho() < $carro2->getDesempenho()){
+    return `O veículo $carro2.getNome() é mais veloz que $carro1.getNome()`;
   }
 }
 
-comparaCarros(civic2015, kombi98)
+comparaCarros($civic2015, $kombi98);
 
 ?>
