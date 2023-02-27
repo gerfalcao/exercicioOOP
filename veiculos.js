@@ -22,18 +22,7 @@ class Veiculos {
     return this.precisaLicensa;
   }
 
-  segurar () {
-    if (this.porte === 'pequeno') {
-      return 'segurou'
-    }
-    if (this.porte === 'médio'){
-      return 'veículo de porte médio, não segura'
-    }
-    if (this.porte === 'grande') {
-      return 'muito grande pra segurar'
-    }
-  }
-
+  
   comprar(possuiLicensa){
     if (this.precisaLicensa === true) {
       if (possuiLicensa === true) {
