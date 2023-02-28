@@ -1,291 +1,357 @@
 <?php
 
-abstract class Veiculos {
-  private string $nome;
-  private string $porte;
-  private float $preco;
-  private bool $precisaLicenca;
+abstract class Veiculo
+{
+  private int $rodas;
+  private int $eixos;
+  private Motor $motor;
+  private Tanque $tanque;
+  private float $peso;
 
-  public function __construct (string $nome, string $porte, float $preco, bool $precisaLicenca)
+  public function __construct(int $rodas, int $eixos, Motor $motor, Tanque $tanque, float $peso)
   {
-    $this->nome = $nome;
-    $this->porte = $porte;
-    $this->preco = $preco;
-    $this->precisaLicenca = $precisaLicenca;
-  }
-  
-  public function getNome(){
-    return $this->nome;
+    $this->rodas = $rodas;
+    $this->eixos = $eixos;
+    $this->motor = $motor;
+    $this->tanque = $tanque;
+    $this->peso = $peso;
   }
 
-  public function getPorte (){
-    return $this->porte;
+  public function getRodas()
+  {
+    return $this->rodas;
   }
 
-  public function getPreco (){
-    return $this->preco;
+  public function getEixos()
+  {
+    return $this->eixos;
   }
 
-  public function getPrecisaLicenca (){
-    return $this->precisaLicenca;
+  public function getMotor()
+  {
+    return $this->motor;
   }
 
-  public function comprar($possuiLicenca) {
-    if($this->getPrecisaLicenca() === 'true') {
-      if ($possuiLicenca === 'true') {
-        return 'Pode comprar';
-      }
-      if ($possuiLicenca === 'false') {
-        return 'Arrume uma licenca antes de comprar';
-      }
-    } else {
-      return 'Pode comprar';
-    }
-  }
-}
-
-// Criando classe Material para criar material do motor
-
-class Material {
-  private string $material;
-  private int $resistencia;
-
-  public function __construct (string $material, int $resistencia){
-    $this->material = $material;
-    $this->resistencia = $resistencia;
+  public function getTanque()
+  {
+    return $this->tanque;
   }
 
-  public function getMaterial(){
-    return $this->material;
+  public function getPeso()
+  {
+    return $this->peso;
   }
-
-  public function getResistencia(){
-  return $this->resistencia;
+  //Função acelerar com valor em quilômetros e consumo do combustível do tanque;
+  public function acelerar(int $km)
+  {
+    $consumido = $km / 10;
+    $this->getTanque()->setQuantidade($this->getTanque()->getQuantidade() - $consumido);
+    return 'acelerou';
   }
 }
-
-$aluminio = new Material('Alumínio', 4);
-$ferro = new Material('Ferro', 8);
 
 
 // Criando classe Motor e dois tipos de motores
 
-class Motor {
-  private string $nome;
+class Motor
+{
   private string $combustivel;
-  private int $consumo;
   private int $potencia;
-  private object $material;
 
-  public function __construct (string $nome, string $combustivel, int $consumo, int $potencia, object $material) {
-    $this->nome = $nome;
+  public function __construct(string $combustivel, int $potencia)
+  {
     $this->combustivel = $combustivel;
-    $this->consumo = $consumo;
     $this->potencia = $potencia;
-    $this->material = $material;
   }
 
-  public function getNome(){
-    return $this->nome;
-  }
-
-  public function getCombustivel(){
+  public function getCombustivel()
+  {
     return $this->combustivel;
   }
 
-  public function getConsumo(){
-    return $this->consumo;
-  }
-
-  public function getPotencia(){
+  public function getPotencia()
+  {
     return $this->potencia;
-  }
-
-  public function getMaterial(){
-    return $this->material;
   }
 }
 
-$motorR8 = new Motor('R8', 'Gasolina', 8, 80, $ferro);
-$motorG14 = new Motor('G14', 'Híbrido', 12, 55, $ferro);
+$motorR8 = new Motor('Gasolina', 80);
+$motorG14 = new Motor('Híbrido', 55);
 
 // Criando classe do tanque
-class Tanque {
-  private float $tanque;
+class Tanque
+{
   private float $capacidadeTotal;
-  private float $disponivel;
+  private float $quantidade;
 
   public function __construct(float $tanque)
   {
     $this->capacidadeTotal = $tanque;
-    $this->disponivel = $tanque;
+    $this->quantidade = $tanque;
   }
 
-  public function getCapacidadeTotal(){
+  public function getCapacidadeTotal()
+  {
     return $this->capacidadeTotal;
   }
 
-  public function getDisponivel(){
-    return $this->disponivel;
-  }
-
-  public function setDisponvivel(float $novoValor): void
+  public function getQuantidade()
   {
-   $this->disponivel = $novoValor;
+    return $this->quantidade;
   }
 
+  public function setQuantidade(float $novoValor): void
+  {
+    $this->quantidade = $novoValor;
+  }
+
+  // Abastecimento completo do tanque
+  public function abastecer()
+  {
+    return $this->setQuantidade($this->getCapacidadeTotal());
+  }
 }
+
+$tanque40 = new Tanque(40);
+$tanque120 = new Tanque(120);
 
 // Criando classe Carro
 
-class Carro extends Veiculos {
-  private object $motor; 
-  private string $cambio; 
-  private object $tanque;
-  private int $portas; 
+class Carro extends Veiculo implements Rastreavel
+{
+  private string $marca;
+  private string $cambio;
+  private int $portas;
+  private int $passageiros = 0;
   private string $cor;
   private bool $usoProfissional;
   private bool $temCarroceria;
   private int $lugares;
 
-  public function __construct (string $nome, float $preco, object $motor, float $tanque, string $cambio, int $portas, string $cor, bool $usoProfissional, bool $temCarroceria, int $lugares){
-    parent::__construct($nome, 'Médio', $preco , true);
-
-    $this->motor = $motor;
+  public function __construct(Motor $motor, Tanque $tanque, float $peso, string $marca, string $cambio, int $portas, string $cor)
+  {
+    parent::__construct(4, 2, $motor, $tanque, $peso);
+    $this->marca = $marca;
     $this->cambio = $cambio;
-    $this->tanque = new Tanque($tanque);
-    // $this->tanque = {
-    //   capacidadeTotal: $tanque;
-    //   disponivel: $tanque;
-    // }
     $this->portas = $portas;
     $this->cor = $cor;
-    $this->usoProfissional = $usoProfissional;
-    $this->temCarroceria = $temCarroceria;
-    $this->lugares = $lugares;
   }
 
-  public function getMotor(){
-    return $this->motor;
+  public function getMarca()
+  {
+    return $this->marca;
   }
 
-  public function getCambio(){
+  public function getPassageiros()
+  {
+    return $this->passageiros;
+  }
+
+  public function getCambio()
+  {
     return $this->cambio;
   }
 
-  public function getTanque(){
-    return $this->tanque;
-  }
-
-  public function getPortas(){
+  public function getPortas()
+  {
     return $this->portas;
   }
 
-  public function getCor(){
+  public function getCor()
+  {
     return $this->cor;
   }
 
-  public function getUsoProfissional(){
-    return $this->usoProfissional;
-  }
-
-  public function getTemCarroceria(){
-    return $this->temCarroceria;
-  }
-
-  public function getLugares(){
-    return $this->lugares;
+  public function setPassageiros(int $qtde)
+  {
+    $this->passageiros = $qtde;
   }
 
   // Função desempenho calculando e retornando o desempenho do carro (quantos segundos para chegar em 100 km/hr)
-  public function getDesempenho(){
-  return $this->motor->getPotencia() / 12;
+  public function calcEficiencia()
+  {
+    $pesoTotal = $this->getPeso() + ($this->getPassageiros() * 70);
+    return $this->getMotor()->getPotencia() / $pesoTotal;
   }
 
-  // Função abastecer com variável do combustível, para completar tanque após consumo feito na função acelerar 
-  public function abastecer(string $combustivel){
-    if ($this->motor->combustivel === 'Híbrido' && $combustivel === 'Gasolina' || $combustivel === 'Alcool' ){
-      $this->tanque->setDisponivel($this->tanque->capacidadeTotal);
-      return 'abasteceu'; 
-    }
-    if ($this->motor->combustivel === $combustivel){
-      $this->tanque->setDisponivel($this->tanque->capacidadeTotal);
-      return 'abasteceu';
-    } else {
-      return 'combustível incompatível';
-    }
+  public function rastrear()
+  {
+    return '425, 234';
   }
-  
-  // Função acelerar com variável de quilômetros, retornando o consumo de combustível para percorrer os quilômetros, e atualizando a quantidade de combustível no tanque após a aceleração;
-  public function acelerar(int $km){
-    $consumido = round(($km / $this->motor->getConsumo()), 2);
-    if ($this->tanque->getDisponivel() - $consumido <= 0){
-      return 'Não pode acelerar tanto, não tem combustível para isso';
+}
+
+class Caminhao extends Veiculo implements Rastreavel
+{
+  private float $cargaMax;
+  private string $marca;
+  private float $comprimento;
+  private string $tipoCarga; //Sólida, líquida, animal
+  private float $carga = 0;
+
+  public function __construct(int $rodas, int $eixos, Motor $motor, Tanque $tanque, float $peso, float $cargaMax, string $marca, float $comprimento, string $tipoCarga)
+  {
+    parent::__construct($rodas, $eixos, $motor, $tanque, $peso);
+    $this->cargaMax = $cargaMax;
+    $this->marca = $marca;
+    $this->comprimento = $comprimento;
+    $this->tipoCarga = $tipoCarga;
+  }
+
+  public function getCargaMax()
+  {
+    return $this->cargaMax;
+  }
+
+  public function getCarga()
+  {
+    return $this->carga;
+  }
+
+  public function getMarca()
+  {
+    return $this->marca;
+  }
+
+  public function getComprimento()
+  {
+    return $this->comprimento;
+  }
+
+  public function getTipoCarga()
+  {
+    return $this->tipoCarga;
+  }
+
+  public function setCarga(float $carga)
+  {
+    if ($this->getCargaMax() >= $carga) {
+      return $this->carga = $carga;
     } else {
-    $this->tanque->setDisponivel($this->tanque->disponivel - $consumido);
-    return `O carro percorre $km quilômetros e foram consumidos $consumido litros.`;
+      return 'Não pode por a carga de ' . $carga . ' kg';
     }
   }
 
-  // Função dar carona com variável do número de pessoas
-  public function darCarona (int $pessoas){
-    if ($this->lugares > $pessoas){
-      return 'dá a carona';
+  public function setComprimento(float $comprimento): void
+  {
+    $this->comprimento = $comprimento;
+  }
+
+  public function transportar(string $tipo)
+  {
+    if ($this->getTipoCarga() === $tipo) {
+      return 'Transporta';
     } else {
-      return 'não cabe todo mundo';
+      return 'não transporta';
     }
   }
 
-  // Função fazer carreto somente se o carro tiver carroceria
-  public function fazerCarreto(){
-    if ($this->temCarroceria === true) {
-      return 'faz o carreto';
+  public function rastrear()
+  {
+    return '280, 750';
+  }
+}
+
+interface Rastreavel
+{
+  public function rastrear();
+}
+
+function localizarVeiculo(Rastreavel $veiculo)
+{
+  return $veiculo->rastrear();
+}
+
+class Onibus extends Veiculo
+{
+  private string $empresa;
+  private int $passageirosMax;
+  private int $passageiros;
+  private string $tipo; // Urbano, rodoviário ou executivo;
+  private float $linha;
+
+  public function __construct(int $rodas, int $eixos, Motor $motor, Tanque $tanque, float $peso, string $empresa, int $passageirosMax, string $tipo, float $linha)
+  {
+    parent::__construct(8, 1, $motor, $tanque, $peso);
+    $this->empresa = $empresa;
+    $this->passageirosMax = $passageirosMax;
+    $this->tipo = $tipo;
+    $this->linha = $linha;
+  }
+
+  public function getEmpresa()
+  {
+    return $this->empresa;
+  }
+
+  public function getPassageirosMax()
+  {
+    return $this->passageirosMax;
+  }
+
+  public function getTipo()
+  {
+    return $this->tipo;
+  }
+
+  public function getLinha()
+  {
+    return $this->linha;
+  }
+
+  public function setPassageiros(int $pass)
+  {
+    if ($this->getPassageirosMax() >= $pass) {
+      return $this->passageiros = $pass;
     } else {
-      return 'não faz o carreto, não tem carroceria';
+      return 'Quantidade inadequada de passageiros';
     }
   }
 
-  // Função fazer o Uber somente se o carro for de uso profissional
-  public function fazerUber(){
-    if ($this->usoProfissional === true){
-      return 'faz o Uber';
+  //Função transportar com valor em quilômetros e consumo do combustível do tanque;
+  public function transportar(int $km)
+  {
+    $consumo = $km / 10;
+    if ($this->getTanque()->getQuantidade() - $consumo > 0) {
+      $this->getTanque()->setQuantidade($this->getTanque()->getQuantidade() - $consumo);
+      return 'transportou';
     } else {
-      return 'carro de uso familiar';
+      return 'trajeto longo, não há combustivel o bastante';
     }
   }
 }
 
-$kombi98 = new Carro('Kombi 98', 50000.00, $motorR8, 'Manual', 40, 3, 'Branca', true, true, 9);
 
-// Verificar tanque
-echo $kombi98->$tanque->getDisponivel();
+// Ações com o Honda Civic 2015, como aceleração e drenagem do tanque e cálculo de eficiência.
 
-// Acelerar 50 km
-$kombi98->acelerar(50);
+$civic2015 = new Carro($motorG14, $tanque40, 250, 'Honda', 'Manual', 4, 'Prata');
 
-// Verificar tanque
-$kombi98->$tanque;
+echo "O tanque do " . $civic2015->getMarca() . " tem " . $civic2015->getTanque()->getQuantidade() . " litros <br>";
+echo $civic2015->acelerar(80) . "<br>";
+echo "agora o tanque tem " . $civic2015->getTanque()->getQuantidade() . " litros <br>";
+echo $civic2015->getTanque()->abastecer();
+echo "após abastecer tem " . $civic2015->getTanque()->getQuantidade() . " litros <br>";
 
-// Abastecer
-$kombi98->$abastecer('Gasolina');
+echo "A eficiência de " . $civic2015->getMarca() . " é de " . $civic2015->calcEficiencia() . "<br>";
 
-// Verificar
-$kombi98->$tanque;
+echo "A localização do veículo é " . $civic2015->rastrear() . "<br>";
 
-$civic2015 = new Carro('Civic 2015', 70000.00, $motorG14, 'Automático', 50, 4, 'Prata', false, false, 5);
 
-function comparaCarros($carro1, $carro2){
-  if ($carro1->getDesempenho() > $carro2->getDesempenho()){
-    return `O veículo $carro1.getNome() é mais veloz que $carro2.getNome()`;
-  }
-  if ($carro1->getDesempenho() === $carro2->getDesempenho()){
-    return `Os dois veículos são igualmente velozes`;
-  }
-  if ($carro1->getDesempenho() < $carro2->getDesempenho()){
-    return `O veículo $carro2.getNome() é mais veloz que $carro1.getNome()`;
-  }
-}
+// Ações com o caminhão Super Truck: transportar diferentes itens e colocar diferentes cargas, sendo os itens e a carga avaliados pelo Objeto.
 
-comparaCarros($civic2015, $kombi98);
+$superTruck = new Caminhao(12, 6, $motorR8, $tanque120, 1500, 2000, 'Mercedes Benz', 0, 'Animal');
 
-?>
+echo $superTruck->transportar('Líquidos') . " os líquidos <br>";
+echo $superTruck->setCarga(3000) . "<br>";
+echo $superTruck->setCarga(1800) . "<br>";
+echo $superTruck->transportar('Animal') . " o animal <br>";
+
+echo "A localização do veículo é " . $superTruck->rastrear() . "<br>";
+
+
+// Ações com o ônibus Metropolitano SP, inserindo passageiros e transportando
+
+$metropolitanoSP = new Onibus(6, 3, $motorR8, $tanque120, 800, 'Prefeitura de SP', 50, 'Urbano', '230');
+echo "O tanque do " . $metropolitanoSP->getEmpresa() . " tem " . $metropolitanoSP->getTanque()->getQuantidade() . " litros <br>";
+echo "entraram " . $metropolitanoSP->setPassageiros(40) . " passageiros <br>";
+echo $metropolitanoSP->transportar(150) . " 150 km <br> ";
+echo "agora o tanque tem " . $metropolitanoSP->getTanque()->getQuantidade() . " litros <br>";
